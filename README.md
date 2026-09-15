@@ -57,9 +57,7 @@ Unlike simple spreadsheet-based trackers or flat document stores, this system us
 ├── PRD_CSV_Data_Layer.md       # Product requirement document (CSV layer)
 ├── PRD_Full_Project.md         # Full project requirement document
 ├── queries.sql                 # 15 demonstration & analytics SQL queries (including Recursive CTEs)
-├── research_db.session.sql     # SQL scratchpad / execution session
 ├── schema.sql                  # Complete DDL: tables, indexes, triggers, and views
-├── test_smart_search.py        # Automated test suite for smart search engine
 └── validate_csv.py             # Automated data integrity & cycle detection test suite
 ```
 
