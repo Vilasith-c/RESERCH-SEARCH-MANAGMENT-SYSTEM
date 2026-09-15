@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Hub — Scholarly Discovery & Citation Graph Engine</title>
+    <meta name="description" content="A modern academic research discovery platform and database management system.">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-wrapper mode-home">
+        <!-- 1. TOP NAVIGATION BAR -->
+        <header class="navbar">
+            <div class="nav-container">
+                <!-- Left: Logo & Product Name -->
+                <div class="nav-left">
+                    <a href="javascript:void(0)" onclick="goToHomePage()" class="brand-link" id="brandLink">
+                        <div class="brand-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                <circle cx="12" cy="9" r="2.5"></circle>
+                            </svg>
+                        </div>
+                        <span class="brand-name">Research Hub</span>
+                    </a>
+                </div>
+
+                <!-- Center: Navigation Tabs -->
+                <nav class="nav-center">
+                    <button class="nav-tab active" data-view="papers" id="btnNavPapers" onclick="goToHomePage()">Papers</button>
+                    <button class="nav-tab" data-view="collections" id="btnNavCollections">
+                        Collections <span class="nav-badge" id="collectionsCount">0</span>
+                    </button>
+                    <button class="nav-tab" data-view="analytics" id="btnNavAnalytics">Analytics</button>
+                </nav>
+
+                <!-- Right: Utility Actions & Avatar -->
+                <div class="nav-right">
+                    <button class="btn-nav-action btn-sql" id="btnOpenSqlModal" title="Execute or inspect PostgreSQL queries">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                        SQL Query
+                    </button>
+                    <button class="btn-nav-action btn-cycle" id="btnOpenCycleModal" title="Run cycle detection graph analysis">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                        Cycle Detection
+                    </button>
+                    <div class="nav-divider"></div>
+                    <button class="icon-action-btn" title="Notifications">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                    </button>
+                    <div class="user-avatar-badge" title="DBMS Team 6 (PostgreSQL 18)">
+                        <span>T6</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 2. SEARCH HEADER (Compact Dashboard Style) -->
+        <section class="search-header-section">
+            <div class="search-header-container">
+                <div class="search-title-wrap">
+                    <h1 class="search-heading">Explore Research</h1>
+                    <p class="search-subheading">Search, analyze, and organize scholarly literature across normalized entities.</p>
+                </div>
+
+                <!-- Main Search Bar -->
+                <form id="searchForm" class="search-bar-form" onsubmit="handleSearchSubmit(event)">
+                    <div class="search-input-wrapper">
+                        <span class="search-prefix-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input 
+                            type="text" 
+                            id="globalSearchInput" 
+                            class="main-search-input" 
+                            placeholder="Search papers, authors, topics, keywords..."
+                            autocomplete="off"
+                            autofocus
+                        >
+                        <button type="button" id="btnClearInput" class="btn-clear-search" style="display: none;">&times;</button>
+                        <button type="submit" class="btn-search-primary">Search</button>
+                    </div>
+                </form>
+
+                <!-- Suggested Quick Searches -->
+                <div class="suggested-tags-row">
+                    <span class="suggested-label">Popular topics:</span>
+                    <button class="tag-chip" onclick="applyTagSearch('Indexing')">Indexing</button>
+                    <button class="tag-chip" onclick="applyTagSearch('Database Systems')">Database Systems</button>
+                    <button class="tag-chip" onclick="applyTagSearch('Query Optimization')">Query Optimization</button>
+                    <button class="tag-chip" onclick="applyTagSearch('Distributed Storage')">Distributed Storage</button>
+                    <button class="tag-chip" onclick="applyTagSearch('DBMS or database')">DBMS or database</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. MAIN CONTENT AREA (Two-Column Layout) -->
+        <main class="main-body-container" id="mainBodyContainer" style="display: none;">
+            <div class="content-grid">
+                
+                <!-- LEFT SIDEBAR: Filters Panel -->
+                <aside class="filters-sidebar">
+                    <div class="filters-card">
+                        <div class="filters-header">
+                            <div class="filters-title-group">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="4" y1="21" x2="4" y2="14"></line>
+                                    <line x1="4" y1="10" x2="4" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12" y2="3"></line>
+                                    <line x1="20" y1="21" x2="20" y2="16"></line>
+                                    <line x1="20" y1="12" x2="20" y2="3"></line>
+                                    <line x1="1" y1="14" x2="7" y2="14"></line>
+                                    <line x1="9" y1="8" x2="15" y2="8"></line>
+                                    <line x1="17" y1="16" x2="23" y2="16"></line>
+                                </svg>
+                                <h2>Filters</h2>
+                            </div>
+                            <button id="btnResetFilters" class="btn-clear-filters" onclick="resetAllFilters()">Reset</button>
+                        </div>
+
+                        <!-- Filter Group 1: Publication Year -->
+                        <div class="filter-group">
+                            <div class="filter-group-title">Publication Year</div>
+                            <label class="filter-radio-label">
+                                <input type="radio" name="yearFilter" value="all" checked onchange="handleFilterChange()">
+                                <span>Any year</span>
+                            </label>
+                            <label class="filter-radio-label">
+                                <input type="radio" name="yearFilter" value="2025" onchange="handleFilterChange()">
+                                <span>Since 2025</span>
+                            </label>
+                            <label class="filter-radio-label">
+                                <input type="radio" name="yearFilter" value="2020" onchange="handleFilterChange()">
+                                <span>Since 2020</span>
+                            </label>
+                            <label class="filter-radio-label">
+                                <input type="radio" name="yearFilter" value="2010" onchange="handleFilterChange()">
+                                <span>Since 2010</span>
+                            </label>
+                            <label class="filter-radio-label">
+                                <input type="radio" name="yearFilter" value="2000" onchange="handleFilterChange()">
+                                <span>Since 2000</span>
+                            </label>
+                        </div>
+
+                        <!-- Filter Group 2: Content Type -->
+                        <div class="filter-group">
+                            <div class="filter-group-title">Content Type</div>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="type-filter" value="journal" checked onchange="handleFilterChange()">
+                                <span>Journal</span>
+                            </label>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="type-filter" value="conference" checked onchange="handleFilterChange()">
+                                <span>Conference</span>
+                            </label>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="type-filter" value="book" checked onchange="handleFilterChange()">
+                                <span>Book / Reference</span>
+                            </label>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="type-filter" value="preprint" checked onchange="handleFilterChange()">
+                                <span>Preprint</span>
+                            </label>
+                        </div>
+
+                        <!-- Filter Group 3: Availability -->
+                        <div class="filter-group">
+                            <div class="filter-group-title">Availability</div>
+                            <label class="filter-check-label">
+                                <input type="checkbox" id="chkLocalPdf" checked onchange="handleFilterChange()">
+                                <span>Local PDF (disk)</span>
+                            </label>
+                            <label class="filter-check-label">
+                                <input type="checkbox" id="chkExternalScholar" checked onchange="handleFilterChange()">
+                                <span>Scholar Source</span>
+                            </label>
+                        </div>
+
+                        <!-- Filter Group 4: Research Area -->
+                        <div class="filter-group">
+                            <div class="filter-group-title">Research Area</div>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="area-filter" value="database" checked onchange="handleFilterChange()">
+                                <span>Databases</span>
+                            </label>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="area-filter" value="distributed" checked onchange="handleFilterChange()">
+                                <span>Distributed Systems</span>
+                            </label>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="area-filter" value="retrieval" checked onchange="handleFilterChange()">
+                                <span>Information Retrieval</span>
+                            </label>
+                            <label class="filter-check-label">
+                                <input type="checkbox" class="area-filter" value="graph" checked onchange="handleFilterChange()">
+                                <span>Graph & Semantics</span>
+                            </label>
+                        </div>
+
+                        <button class="btn-clear-all-bottom" onclick="resetAllFilters()">Clear all filters</button>
+                    </div>
+                </aside>
+
+                <!-- RIGHT COLUMN: Results Area -->
+                <section class="results-area">
+                    <!-- Results Bar: Count & Sorting -->
+                    <div class="results-meta-bar">
+                        <div class="results-heading-box">
+                            <h2 class="results-main-title">Search results</h2>
+                            <span class="results-count-text"><strong id="resultsCount">18</strong> papers found</span>
+                        </div>
+                        <div class="results-controls">
+                            <label for="sortSelector" class="sort-label">Sort by:</label>
+                            <div class="select-wrapper">
+                                <select id="sortSelector" class="sort-dropdown" onchange="handleSortChange(this.value)">
+                                    <option value="citations">Most Cited</option>
+                                    <option value="year_desc">Newest Year</option>
+                                    <option value="year_asc">Oldest Year</option>
+                                    <option value="relevance">Relevance</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading Skeleton (Hidden by default) -->
+                    <div id="loadingSkeleton" class="skeleton-container" style="display: none;">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
+
+                    <!-- Paper Cards Container -->
+                    <div id="papersList" class="papers-list-container">
+                        <!-- Rendered via JavaScript -->
+                    </div>
+
+                    <!-- Empty State Container -->
+                    <div id="emptyState" class="empty-state-card" style="display: none;">
+                        <div class="empty-state-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                <line x1="8" y1="11" x2="14" y2="11"></line>
+                            </svg>
+                        </div>
+                        <h3 class="empty-title">No research papers found</h3>
+                        <p class="empty-subtitle">Try adjusting your keywords, resetting year filters, or searching for terms like "DBMS", "optimization", or "Google".</p>
+                        <button class="btn-empty-reset" onclick="resetSearch()">View All Papers</button>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MODAL A: SQL QUERY INTERFACE                                      -->
+    <!-- ================================================================= -->
+    <div id="sqlModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <span class="badge-accent">PostgreSQL 18</span>
+                    <h3 class="modal-title">Relational SQL Execution</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('sqlModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-note">
+                    The active query generated for your search or custom execution. Runs against the normalized schema (Paper, Author, Venue, Keyword, Dataset, Methodology, Citation).
+                </p>
+                <div class="sql-code-editor-box">
+                    <div class="editor-bar">
+                        <span class="editor-file-label">active_query.sql</span>
+                        <button class="btn-copy-code" id="btnCopySqlModal" onclick="copySqlCode()">Copy Query</button>
+                    </div>
+                    <pre><code id="sqlModalCodeBlock">-- Loading SQL...</code></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="engine-badge">Engine: PostgreSQL 18 &bull; research_db</span>
+                <button class="btn-modal-primary" onclick="closeModal('sqlModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MODAL B: CYCLE DETECTION GRAPH ANALYSIS                           -->
+    <!-- ================================================================= -->
+    <div id="cycleModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <span class="badge-danger">Viva Demonstration</span>
+                    <h3 class="modal-title">Circular Citation Dependencies</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('cycleModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="callout-box">
+                    <strong>Graph Integrity Query:</strong> Executes an array-guarded recursive CTE to detect citation loops ($A \rightarrow B \rightarrow C \rightarrow A$) planted in the query optimization research corpus.
+                </div>
+                <div id="cycleResultsList" class="cycle-nodes-wrap">
+                    <!-- Dynamic cycle results -->
+                </div>
+                <div class="sql-code-editor-box" style="margin-top: 14px;">
+                    <div class="editor-bar">
+                        <span class="editor-file-label">recursive_cycle_detection.sql</span>
+                    </div>
+                    <pre><code id="cycleSqlCode"></code></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-primary" onclick="closeModal('cycleModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MODAL C: RECURSIVE INFLUENCE CHAIN                                -->
+    <!-- ================================================================= -->
+    <div id="influenceModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <span class="badge-indigo">Recursive CTE</span>
+                    <h3 class="modal-title" id="influenceModalHeading">Downstream Influence Chain</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('influenceModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-note">
+                    Multi-hop downstream influence calculated inside the database using recursive CTE traversal:
+                </p>
+                <div id="influenceChainNodes" class="influence-timeline-wrap">
+                    <!-- Dynamic influence hops -->
+                </div>
+                <div class="sql-code-editor-box" style="margin-top: 14px;">
+                    <div class="editor-bar">
+                        <span class="editor-file-label">influence_traversal.sql</span>
+                    </div>
+                    <pre><code id="influenceSqlCode"></code></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-primary" onclick="closeModal('influenceModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MODAL D: SAVED COLLECTIONS DRAWER                                 -->
+    <!-- ================================================================= -->
+    <div id="collectionsModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <h3 class="modal-title">Saved Papers Collection</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('collectionsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="savedPapersList" class="saved-list-wrap">
+                    <!-- Dynamic saved papers -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-primary" onclick="closeModal('collectionsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MODAL E: ANALYTICS OVERVIEW                                       -->
+    <!-- ================================================================= -->
+    <div id="analyticsModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <h3 class="modal-title">Corpus Analytics & Metrics</h3>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('analyticsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="analytics-metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-val" id="analyticsPapers">18</span>
+                        <span class="metric-lbl">Total Papers</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="analyticsAuthors">68</span>
+                        <span class="metric-lbl">Total Authors</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="analyticsCitations">30</span>
+                        <span class="metric-lbl">Citation Links</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="analyticsBenchmarks">34</span>
+                        <span class="metric-lbl">Benchmarks & Datasets</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-primary" onclick="closeModal('analyticsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
