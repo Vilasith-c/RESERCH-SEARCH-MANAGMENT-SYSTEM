@@ -5,14 +5,14 @@
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 The **Recursive Influence Tracker** is a relational database system and research repository designed to store, manage, and analyze academic papers and their interconnected relationships (citations, authors, venues, datasets, and methodologies).
 
 Unlike simple spreadsheet-based trackers or flat document stores, this system uses PostgreSQL to enforce 3NF normalization, transactional integrity, automated statistics maintenance via triggers, and advanced recursive CTE queries (citation-chain influence analysis and cycle detection). A Flask-based interactive web interface provides real-time multi-field search and citation tracking over the paper corpus.
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 1. **Normalized Relational Schema (3NF):**
    - Entities: `Paper`, `Author`, `Venue`, `Keyword`, `Dataset`, `Methodology`, `Citation`, and their associative bridge tables.
@@ -37,7 +37,7 @@ Unlike simple spreadsheet-based trackers or flat document stores, this system us
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 ├── data/                       # Local PDF documents for research papers
@@ -63,7 +63,7 @@ Unlike simple spreadsheet-based trackers or flat document stores, this system us
 
 ---
 
-## ⚙️ Setup and Usage
+## Setup and Usage
 
 ### 1. Prerequisites
 - Python 3.9+
@@ -102,6 +102,6 @@ Open [http://localhost:5000](http://localhost:5000) in your web browser.
 
 ---
 
-## 👥 Authors
+## Authors
 - **Elluru Ritesh Goud**
 - **Bhanu Vilasith Reddy Chilka**
